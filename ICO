@@ -1,0 +1,67 @@
+pragma solidity >= 0.4.22 < 0.6.0;
+
+contract ICO {
+ 
+    //introducing the maximum number of tokens available for each student
+    uint public max_tokens = 100000; //not sure about this one
+
+    // conversion rate
+    uint public credit_to_mytoken = 3;
+
+    uint public total_tokens_given = 0;
+
+    
+    // You can also consider mapping as sort of associative arrays. approved_credit is the maximum credits decided by ARRO 
+
+    mapping(address => uint) approved_credit;
+    
+    mapping(address => uint) equity_tokens;
+
+    // This function tells the equity of student in terms of tokens assigned
+    
+
+    function equity_in_tokens(address student) view public returns (uint) {
+       
+	 return equity_tokens[student]; // equity_tokens is resolved with mapping defined above against the student address.
+    
+	}
+
+    
+    // This function returns approximate (ceiling) value because data type is uint. 
+
+    function max_approved_credit(address student) view public returns (uint) {
+        
+	return approved_credit[student]; // equity_usd is resloved with mapping defined above. 
+    
+	}
+
+    function increase_tokens(address student, uint credit_enrolled) public {
+        
+	// Check the condition: if tokens are available enough 
+	require(credit_enrolled * credit_to_mytoken + total_tokens_given <= max_tokens, 'Token supply is not enough. Please try some less amount.');
+	uint tokens_given = credit_enrolled * credit_to_mytoken;
+
+	// update mapped data structure for equity_tokens
+         
+	equity_tokens[student] += tokens_given;
+         
+        // update the amount of total given tokens
+         
+	total_tokens_given += tokens_given;
+   
+	}
+
+    function decrease_tokens(address student, uint tokens_used) public {
+        
+	// Check if the student has enough tokens that one is trying to use, require() provide a msg for invalid cases
+	require(tokens_used <= equity_tokens[student], 'Do not have enough token. Please try with less amount.');
+		
+        // update variables
+         	
+        equity_tokens[student] -= tokens_used;
+        
+        total_tokens_given -= tokens_used;
+		
+	}    
+   
+}
