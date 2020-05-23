@@ -17,7 +17,7 @@ contract PaymentChannel {
     }
     
 /// Closing the channel after all the payments from bidding were received
-/// Univeristy will recieve the payment amounts,and the remainder will send to the students
+/// University will receive the payment amounts,and the remainder will send to the students
     function close(uint256 amount, bytes memory signature) public {
         require(msg.sender == university); //Validation of message before closing the payment channel
         require(isValidSignature(amount, signature)); //Validation of signature before closing the payment channel
