@@ -1,31 +1,37 @@
 pragma solidity >=0.4.24 <0.6.0;
 
-/// This contract is about two parts: Verification of signature and prevent replay attack
-contract ReceiverPays {
-    address owner = msg.sender;
+
+/// This contract verifies the signature and prevent replay attacks.
+/// Replay attack is prevented by copying the bid-sender's address into the message
+/// Therefore there is only one message containing the contract address will be accepted
+contract Verifying_Signature {
+    address student = msg.sender;
 
     mapping(uint256 => bool) usedNonces;
 
     constructor() public payable {}
-    ///This function protects against replay attack by including the contract's address in the message, and only messages containing the contract's address itself will be accepted.
-    function claimPayment(uint256 amount, uint256 nonce, bytes memory signature) public {
+    ///This function protects against replay attack by including the contract's address in the message
+    ///and only messages containing the contract's address itself will be accepted.
+    function claimBid(uint256 amount, uint256 nonce, bytes memory signature) public {
         require(!usedNonces[nonce]);
         usedNonces[nonce] = true;
 
         // this recreates the message that was signed on the client
         bytes32 message = prefixed(keccak256(abi.encodePacked(msg.sender, amount, nonce, this)));
 
-        require(recoverSigner(message, signature) == owner);
+        require(recoverSigner(message, signature) == student);
 
         msg.sender.transfer(amount);
     }
 
-    /// destroy the contract and reclaim the leftover funds.
+    /// destroy the contract and reclaim the leftover bids.
     function kill() public {
-        require(msg.sender == owner);
+        require(msg.sender == student);
         selfdestruct(msg.sender);
     }
-    /// Three function splitSignature, recoverSigner, prefixed are the internal process of the signature verification
+
+    /// This function is about spliting the signatures into 3 parts: r,s,v 
+    /// r and s are the outputs of an ECDSA signature, and v is the recovery id
     function splitSignature(bytes memory sig)
         internal
         pure
@@ -44,7 +50,7 @@ contract ReceiverPays {
 
         return (v, r, s);
     }
-
+    
     function recoverSigner(bytes32 message, bytes memory sig)
         internal
         pure
