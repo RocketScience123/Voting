@@ -1,6 +1,7 @@
 pragma solidity >=0.4.24 <0.6.0;
 
-
+/// This contract is about two parts: Verification of signature and prevent replay attack
+ solidity >=0.4.24 <0.6.0;
 /// This contract verifies the signature and prevent replay attacks.
 /// Replay attack is prevented by copying the bid-sender's address into the message
 /// Therefore there is only one message containing the contract address will be accepted
@@ -16,7 +17,7 @@ contract Verifying_Signature {
         require(!usedNonces[nonce]);
         usedNonces[nonce] = true;
 
-        // this recreates the message that was signed on the client
+        // this recreates the message that was signed on the student
         bytes32 message = prefixed(keccak256(abi.encodePacked(msg.sender, amount, nonce, this)));
 
         require(recoverSigner(message, signature) == student);
@@ -30,7 +31,7 @@ contract Verifying_Signature {
         selfdestruct(msg.sender);
     }
 
-    /// This function is about spliting the signatures into 3 parts: r,s,v 
+    /// This function is about splitting the signatures into 3 parts: r,s,v 
     /// r and s are the outputs of an ECDSA signature, and v is the recovery id
     function splitSignature(bytes memory sig)
         internal
@@ -60,6 +61,13 @@ contract Verifying_Signature {
 
         return ecrecover(message, v, r, s);
     }
+
+    /// builds a prefixed hash to mimic the behavior of eth_sign.
+    function prefixed(bytes32 hash) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+    }
+}
+
 
     /// builds a prefixed hash to mimic the behavior of eth_sign.
     function prefixed(bytes32 hash) internal pure returns (bytes32) {
