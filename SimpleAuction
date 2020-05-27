@@ -1,13 +1,14 @@
 pragma solidity >=0.4.22 <0.6.0;
 
-contract SimpleAuction {
-    // Parameters of the auction. Times are either
-    // absolute unix timestamps (seconds since 1970-01-01)
-    // or time periods in seconds.
+contract CourseBidding {
+    // The solidity is to show how a student can win the bid. 
+//For convenience, we have set the quota of winning the course bidding as ONE student.
+//Winning quota for the course biddings should change depending on the courses and instructor’s preference. 
+//We encourage you to run in an Injected Web 3 environment.
     address payable public university;
     uint public expiration;
 
-    // Current state of the auction.
+    // Current state of the bidding.
     address public highestBidder;
     uint public highestBid;
 
